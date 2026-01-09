@@ -1,0 +1,23 @@
+{
+  "name": "personal-options-trading",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "db:push": "pnpm --filter db db:push"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.10",
+    "dotenv-cli": "^11.0.0"
+  },
+  "dependencies": {
+    "better-auth": "^1.4.10"
+  },
+  "pnpm": {
+    "overrides": {
+      "drizzle-orm": "0.41.0"
+    }
+  }
+}

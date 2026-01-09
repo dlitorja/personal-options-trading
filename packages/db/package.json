@@ -1,0 +1,20 @@
+{
+  "name": "@personal-options-trading/db",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "db:push": "npx dotenv -e ../../.env -- drizzle-kit push:pg",
+    "db:generate": "npx dotenv -e ../../.env -- drizzle-kit generate"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.41.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.0",
+    "drizzle-kit": "^0.20.18",
+    "tsx": "^4.21.0"
+  }
+}
