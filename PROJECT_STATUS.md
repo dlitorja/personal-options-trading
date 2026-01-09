@@ -2,7 +2,7 @@
 
 ## Overview
 
-Personal Options Trading monorepo - Next.js 15 + TypeScript + pnpm workspaces + Supabase
+Personal Options Trading monorepo - Next.js 15.1.11 + TypeScript 5.6.0 + pnpm workspaces + Supabase
 
 ---
 
@@ -14,7 +14,7 @@ January 9, 2026
 
 ## Project Phase
 
-**Authentication Complete** - BetterAuth integrated with auth pages and protected dashboard
+**Authentication MVP complete** - BetterAuth integrated with auth pages and protected dashboard
 
 ---
 
@@ -42,6 +42,7 @@ personal-options-trading/
 ### Database
 - [x] Drizzle ORM setup
 - [x] BetterAuth schema (user, session, account, verification tables)
+- [x] Schema consolidated to packages/db/src/schema.ts (canonical source)
 - [x] Schema pushed to Supabase
 
 ### Authentication
@@ -65,9 +66,31 @@ personal-options-trading/
 - [x] Conditional rendering based on auth state
 
 ### Data Fetching
-- [x] TanStack Query installed
+- [x] TanStack Query installed (v5.90.16)
 - [x] QueryClient provider configured
-- [x] React Query Devtools integrated
+- [x] React Query Devtools integrated (dev-only)
+- [x] QueryClient cleanup on unmount to prevent memory leaks
+
+### Accessibility
+- [x] Motion-safe animations for reduced motion support
+- [x] ARIA attributes on error banners (role, aria-live)
+- [x] Native form controls respect theme via color-scheme CSS
+- [x] Button type attributes to prevent form submission issues
+- [x] Min length validation on password inputs with immediate feedback
+
+### UI Improvements
+- [x] Dark mode support with next-themes
+- [x] Theme toggle with light/dark/system modes
+- [x] Modern hero section with gradient backgrounds
+- [x] Dashboard with account stats, info cards, and quick actions
+
+### Bug Fixes
+- [x] Fixed CVA defaultVariants format in Button, Card, Input
+- [x] Fixed tsconfig.json paths (removed invalid /**/* pattern)
+- [x] Fixed auth-client exports (only export existing hooks)
+- [x] Simplified Label component (removed unused CVA)
+- [x] Fixed theme toggle logic (use resolvedTheme instead of theme)
+- [x] Fixed auth-schema imports (corrected Drizzle import path)
 
 ---
 
@@ -106,8 +129,8 @@ pnpm --filter web add package-name
 
 ## Environment
 
-- Next.js 15.0.0
-- React 18.3.0
+- Next.js 15.1.11
+- React 19.0.0
 - TypeScript 5.6.0
-- Drizzle ORM 0.30.x
+- Drizzle ORM 0.41.0
 - pnpm 10.0.0
