@@ -1,13 +1,13 @@
 import { relations } from "drizzle-orm";
 import {
-  postgresqlTable,
+  pgTable,
   text,
   timestamp,
   boolean,
   index,
-} from "drizzle-orm/postgresql-core";
+} from "drizzle-orm/pg-core";
 
-export const user = postgresqlTable("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -20,7 +20,7 @@ export const user = postgresqlTable("user", {
     .notNull(),
 });
 
-export const session = postgresqlTable(
+export const session = pgTable(
   "session",
   {
     id: text("id").primaryKey(),
@@ -37,7 +37,7 @@ export const session = postgresqlTable(
   (table) => [index("session_userId_idx").on(table.userId)],
 );
 
-export const account = postgresqlTable(
+export const account = pgTable(
   "account",
   {
     id: text("id").primaryKey(),
@@ -59,7 +59,7 @@ export const account = postgresqlTable(
   (table) => [index("account_userId_idx").on(table.userId)],
 );
 
-export const verification = postgresqlTable(
+export const verification = pgTable(
   "verification",
   {
     id: text("id").primaryKey(),

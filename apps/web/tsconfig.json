@@ -26,9 +26,6 @@
         "./src/*"
       ],
       "@personal-options-trading/db": [
-        "../packages/db/src/**/*"
-      ],
-      "@personal-options-trading/db/src": [
         "../packages/db/src"
       ]
     },

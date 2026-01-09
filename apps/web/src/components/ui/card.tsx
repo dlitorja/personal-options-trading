@@ -11,8 +11,10 @@ const cardVariants = cva(
         default: "border",
       },
     },
-  },
-  { defaultVariants: ["variant"] }
+    defaultVariants: {
+      variant: "default",
+    },
+  }
 )
 
 export interface CardProps

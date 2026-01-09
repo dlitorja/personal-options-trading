@@ -11,8 +11,10 @@ const inputVariants = cva(
         default: "border",
       },
     },
-  },
-  { defaultVariants: ["variant"] }
+    defaultVariants: {
+      variant: "default",
+    },
+  }
 )
 
 export interface InputProps
