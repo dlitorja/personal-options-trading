@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "@tanstack/react-form";
 import { authClient } from "@/lib/auth-client";
+import { signUpSchema } from "@/lib/auth-schemas";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,33 +12,36 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function SignUp() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    },
+    validators: {
+      onBlur: signUpSchema
+    },
+    onSubmit: async ({ value }) => {
+      setError("");
+      setIsLoading(true);
+      try {
+        await authClient.signUp.email({
+          email: value.email,
+          password: value.password,
+          name: value.name,
+          callbackURL: "/",
+        });
+      } catch (err) {
+        setError("Failed to create account");
+      } finally {
+        setIsLoading(false);
+      }
     }
-
-    setIsLoading(true);
-
-    await authClient.signUp.email({
-      email,
-      password,
-      name,
-      callbackURL: "/",
-    });
-
-    setIsLoading(false);
-  };
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-primary/5 to-background relative">
@@ -55,68 +60,122 @@ export default function SignUp() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-5" onSubmit={handleSignUp}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="space-y-5"
+          >
             {error && (
-              <div className="bg-destructive/10 border-2 border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+              <div className="bg-destructive/10 border-2 border-destructive/20 text-destructive px-4 py-3 rounded-lg" role="alert" aria-live="assertive">
                 {error}
               </div>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-base font-medium">Full name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                placeholder="Enter your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-11"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-base font-medium">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-11"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-base font-medium">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                placeholder="Password (min 8 characters)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-11"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password" className="text-base font-medium">Confirm password</Label>
-              <Input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="h-11"
-              />
-            </div>
+            <form.Field
+              name="name"
+              children={(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name} className="text-base font-medium">Full name</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Enter your full name"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className={`h-11 ${
+                      field.state.meta.isTouched && field.state.meta.errors.length ? "border-destructive" : ""
+                    }`}
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <div className="text-destructive text-sm font-medium">
+                      {field.state.meta.errors.map((err) => err?.message).join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+            <form.Field
+              name="email"
+              children={(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name} className="text-base font-medium">Email</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="email"
+                    autoComplete="email"
+                    placeholder="Enter your email"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className={`h-11 ${
+                      field.state.meta.isTouched && field.state.meta.errors.length ? "border-destructive" : ""
+                    }`}
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <div className="text-destructive text-sm font-medium">
+                      {field.state.meta.errors.map((err) => err?.message).join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+            <form.Field
+              name="password"
+              children={(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name} className="text-base font-medium">Password</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Password (min 8 characters)"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className={`h-11 ${
+                      field.state.meta.isTouched && field.state.meta.errors.length > 0 ? "border-destructive" : ""
+                    }`}
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <div className="text-destructive text-sm font-medium">
+                      {field.state.meta.errors.map((err) => err?.message).join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+            <form.Field
+              name="confirmPassword"
+              children={(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name} className="text-base font-medium">Confirm password</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Confirm your password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className={`h-11 ${
+                      field.state.meta.isTouched && field.state.meta.errors.length ? "border-destructive" : ""
+                    }`}
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <div className="text-destructive text-sm font-medium">
+                      {field.state.meta.errors.map((err) => err?.message).join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
             <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Sign up"}
             </Button>

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "@tanstack/react-form";
 import { authClient } from "@/lib/auth-client";
+import { signInSchema } from "@/lib/auth-schemas";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,24 +12,33 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    await authClient.signIn.email({
-      email,
-      password,
-      callbackURL: "/",
-    });
-
-    setIsLoading(false);
-  };
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: ""
+    },
+    validators: {
+      onBlur: signInSchema
+    },
+    onSubmit: async ({ value }) => {
+      setError("");
+      setIsLoading(true);
+      try {
+        await authClient.signIn.email({
+          email: value.email,
+          password: value.password,
+          callbackURL: "/",
+        });
+      } catch (err) {
+        setError("Invalid email or password");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-primary/5 to-background relative">
@@ -52,43 +63,73 @@ export default function SignIn() {
           </div>
         </CardHeader>
         <CardContent className="px-6 pb-6">
-          <form className="space-y-5" onSubmit={handleSignIn}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="space-y-5"
+          >
             {error && (
               <div className="bg-destructive/10 border-2 border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm font-medium animate-in fade-in slide-in-from-top-2">
                 {error}
               </div>
             )}
-            <div className="space-y-2.5">
-              <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-11 transition-all focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div className="space-y-2.5">
-              <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-11 transition-all focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <Button 
-              type="submit" 
-              className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all mt-6" 
+            <form.Field
+              name="email"
+              children={(field) => (
+                <div className="space-y-2.5">
+                  <Label htmlFor={field.name} className="text-sm font-semibold">Email</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="email"
+                    autoComplete="email"
+                    placeholder="Enter your email"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className={`h-11 transition-all focus:ring-2 focus:ring-primary/20 ${
+                      field.state.meta.isTouched && field.state.meta.errors.length ? "border-destructive" : ""
+                    }`}
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <div className="text-destructive text-sm font-medium">
+                      {field.state.meta.errors.map((err) => err?.message).join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+            <form.Field
+              name="password"
+              children={(field) => (
+                <div className="space-y-2.5">
+                  <Label htmlFor={field.name} className="text-sm font-semibold">Password</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className={`h-11 transition-all focus:ring-2 focus:ring-primary/20 ${
+                      field.state.meta.isTouched && field.state.meta.errors.length ? "border-destructive" : ""
+                    }`}
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <div className="text-destructive text-sm font-medium">
+                      {field.state.meta.errors.map((err) => err?.message).join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+            <Button
+              type="submit"
+              className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all mt-6"
               disabled={isLoading}
             >
               {isLoading ? (
